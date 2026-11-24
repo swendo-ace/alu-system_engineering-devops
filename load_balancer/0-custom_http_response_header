@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Configures a new Ubuntu machine with nginx and a custom X-Served-By response header
+apt-get update -y
+apt-get install -y nginx
+echo "Holberton School for the win!" > /var/www/html/index.html
+echo "Ceci n'est pas une page" > /var/www/html/404.html
+if ! grep -q "redirect_me" /etc/nginx/sites-available/default; then
+    sed -i '0,/server {/s|server {|server {\n\trewrite ^/redirect_me https://github.com/swendo-ace permanent;|' /etc/nginx/sites-available/default
+fi
+if ! grep -q "error_page 404" /etc/nginx/sites-available/default; then
+    sed -i '0,/server {/s|server {|server {\n\terror_page 404 /404.html;\n\tproxy_intercept_errors on;\n\tlocation = /404.html {\n\t\troot /var/www/html;\n\t\tinternal;\n\t}|' /etc/nginx/sites-available/default
+fi
+if ! grep -rq "X-Served-By" /etc/nginx/; then
+    sed -i "0,/http {/s|http {|http {\n\tadd_header X-Served-By \$hostname;|" /etc/nginx/nginx.conf
+fi
+service nginx restart
