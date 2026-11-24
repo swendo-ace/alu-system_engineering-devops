@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Starts Apache in the container so it serves a page containing Hello Holberton
+service apache2 start
